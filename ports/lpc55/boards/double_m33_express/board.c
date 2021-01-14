@@ -26,6 +26,7 @@
 #include "tusb.h"
 
 #include "fsl_device_registers.h"
+#include "fsl_i2c.h"
 #include "fsl_gpio.h"
 #include "fsl_power.h"
 #include "fsl_iocon.h"
@@ -40,6 +41,7 @@ uint32_t _pixelData[NEOPIXEL_NUMBER] = {0};
 //--------------------------------------------------------------------+
 void board_pin_init(void)
 {
+  uint8_t i2cBuff[4];
   GPIO_PortInit(GPIO, 0);
   GPIO_PortInit(GPIO, 1);
 
@@ -58,11 +60,36 @@ void board_pin_init(void)
 
   GPIO_PinInit(GPIO, LED_PORT, LED_PIN, &(gpio_pin_config_t){kGPIO_DigitalOutput, 1});
 
+  /* I2C SCL */
+  IOCON_PinMuxSet(IOCON, I2C_SCL_PORT, I2C_SCL_PIN, (IOCON_PIO_DIG_FUNC1_EN | IOCON_PIO_I2CFILTER_MASK));
+  /* I2C SDA */
+  IOCON_PinMuxSet(IOCON, I2C_SDA_PORT, I2C_SDA_PIN, (IOCON_PIO_DIG_FUNC1_EN | IOCON_PIO_I2CFILTER_MASK));
+
+
   sctpix_init(NEOPIXEL_TYPE);
   sctpix_addCh(NEOPIXEL_CH, _pixelData, NEOPIXEL_NUMBER);
   sctpix_setPixel(NEOPIXEL_CH, 0, 0x101000);
   sctpix_setPixel(NEOPIXEL_CH, 1, 0x101000);
   sctpix_show();
+
+  /* attach 12 MHz clock to FLEXCOMM1 (I2C master) */
+  CLOCK_AttachClk(kFRO12M_to_FLEXCOMM1);
+
+  /* reset FLEXCOMM for I2C */
+  RESET_PeripheralReset(kFC1_RST_SHIFT_RSTn);
+
+  i2c_master_config_t i2cConfig;
+  I2C_MasterGetDefaultConfig(&i2cConfig);
+  i2cConfig.baudRate_Bps = 400000;
+  /* Initialize the I2C master peripheral */
+  I2C_MasterInit(I2C1, &i2cConfig, 12000000);
+
+  i2cBuff[0] = 0x00;  // Input Current Limit Register
+  i2cBuff[1] = 0x4F;  // TS_IGNORE & 1500mA
+  I2C_MasterStart(I2C1, BQ25619_ADDR, kI2C_Write);
+  I2C_MasterWriteBlocking(I2C1, i2cBuff, 2, kI2C_TransferDefaultFlag);
+  I2C_MasterStop(I2C1);
+
 }
 
 //--------------------------------------------------------------------+

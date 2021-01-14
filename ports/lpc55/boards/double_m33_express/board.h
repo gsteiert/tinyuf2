@@ -73,6 +73,15 @@
 #define UF2_VOLUME_LABEL  "DblM33BOOT"
 #define UF2_INDEX_URL     "https://www.crowdsupply.com/steiert-solutions/double-m33-express"
 
+// I2C
+#define I2C_SCL_PORT          0
+#define I2C_SCL_PIN           14
+#define I2C_SDA_PORT          0
+#define I2C_SDA_PIN           13
+
+// Battery Charger
+#define BQ25619_ADDR               0x6AU
+
 //--------------------------------------------------------------------+
 // Flash
 //--------------------------------------------------------------------+

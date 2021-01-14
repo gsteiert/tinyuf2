@@ -2,9 +2,11 @@ MCU = LPC55S69
 MCU_CORE = $(MCU)_cm33_core0
 CFLAGS += -DCPU_LPC55S69JBD100_cm33_core0
 
-SRC_C += lib/sct_neopixel/sct_neopixel.c
-
-SELF_SRC_C += lib/sct_neopixel/sct_neopixel.c
+SRC_C += lib/sct_neopixel/sct_neopixel.c \
+	$(MCU_DIR)/drivers/fsl_i2c.c 
+ 
+SELF_SRC_C += lib/sct_neopixel/sct_neopixel.c \
+	$(MCU_DIR)/drivers/fsl_i2c.c 
 
 INC += $(TOP)/lib/sct_neopixel
 
