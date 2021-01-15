@@ -63,8 +63,8 @@
 // USB UF2
 //--------------------------------------------------------------------+
 
-#define USB_VID           0x1fc9
-#define USB_PID           0x0094
+#define USB_VID           0x1209
+#define USB_PID           0xD33E
 #define USB_MANUFACTURER  "Steiert Solutions"
 #define USB_PRODUCT       "Double M33"
 
